@@ -55,7 +55,7 @@ smartAuthify
 └── .gitattributes
 ```
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
