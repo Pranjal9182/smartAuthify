@@ -23,7 +23,7 @@ public class UserEntityMapper {
             .isAccountVerified(false)
             .resetOtpExpiredAt(0L)
             .verifyOtp(null)
-            .verifyOtpExpiredAt(0l)
+            .verifyOtpExpiredAt(0L)
             .resetOtp(null)
             .build();
 }

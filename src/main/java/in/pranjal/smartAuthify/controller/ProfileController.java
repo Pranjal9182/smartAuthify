@@ -2,6 +2,7 @@ package in.pranjal.smartAuthify.controller;
 
 import in.pranjal.smartAuthify.io.ProfileRequest;
 import in.pranjal.smartAuthify.io.ProfileResponse;
+import in.pranjal.smartAuthify.service.EmailService;
 import in.pranjal.smartAuthify.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,19 +15,22 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ProfileController {
     private final ProfileService profileService;
+    private final EmailService emailService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public ProfileResponse register(@Valid @RequestBody ProfileRequest request){
-        ProfileResponse response= profileService.createProfile(request);
-        return  response;
+    public ProfileResponse register(@Valid @RequestBody ProfileRequest request) {
+        ProfileResponse response = profileService.createProfile(request);
+        emailService.sendWelcomeEmail(response.getEmail(), response.getName());
+        return response;
     }
-//    @GetMapping("/test")
+
+    //    @GetMapping("/test")
 //    public String test(){
 //        return "Auth is working";
 //    }
     @GetMapping("/profile")
-    public ProfileResponse getProfile(@CurrentSecurityContext(expression = "authentication?.name") String email){
+    public ProfileResponse getProfile(@CurrentSecurityContext(expression = "authentication?.name") String email) {
         return profileService.getProfile(email);
     }
 }
