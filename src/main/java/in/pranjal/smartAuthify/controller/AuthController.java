@@ -2,9 +2,11 @@ package in.pranjal.smartAuthify.controller;
 
 import in.pranjal.smartAuthify.io.AuthRequest;
 import in.pranjal.smartAuthify.io.AuthResponse;
+import in.pranjal.smartAuthify.io.ResetPasswordRequest;
 import in.pranjal.smartAuthify.service.ProfileService;
 import in.pranjal.smartAuthify.service.implementation.AppUserDetailsService;
 import in.pranjal.smartAuthify.util.JwtUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -83,4 +85,13 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
         }
     }
+@PostMapping("/reset-password")
+    public void resetPassword(@Valid @RequestBody ResetPasswordRequest request){
+        try{
+            profileService.resetPassword(request.getEmail(), request.getOtp(), request.getNewPassword());
+        } catch(Exception e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+        }
+    }
+
 }
