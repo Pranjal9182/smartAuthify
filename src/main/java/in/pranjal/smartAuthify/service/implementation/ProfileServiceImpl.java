@@ -89,20 +89,36 @@ public class ProfileServiceImpl implements ProfileService {
         }
         //Generate 6 digit OTP
         String otp = String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
-        long expiryTime = System.currentTimeMillis() + (24*60* 60 * 1000);
 
+        //Calculate expiry time (Current time + 24 hours in milliseconds)
+        long expiryTime = System.currentTimeMillis() + (24 * 60 * 60 * 1000);
+        existingUser.setVerifyOtp(otp);
+        existingUser.setVerifyOtpExpiredAt(expiryTime);
+        userRepository.save(existingUser);
+
+        try {
+            emailService.sendOtpEmail(existingUser.getEmail(), otp);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to send email");
+        }
     }
 
     @Override
     public void verifyOtp(String email, String otp) {
-
-    }
-
-    @Override
-    public String getLoggedInUserId(String email) {
         UserEntity existingUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
-        return existingUser.getUserId();
+        if (existingUser.getVerifyOtp() == null || !existingUser.getVerifyOtp().equals(otp)) {
+            throw new RuntimeException("Invalid OTP");
+        }
+        if (existingUser.getVerifyOtpExpiredAt() < System.currentTimeMillis()) {
+            throw new RuntimeException("OTP Expired");
+        }
+        existingUser.setIsAccountVerified(true);
+        existingUser.setVerifyOtp(null);
+        existingUser.setVerifyOtpExpiredAt(0L);
+
+        userRepository.save(existingUser);
     }
+
 }
